@@ -27,10 +27,11 @@ const Bug = sequelize.define('Bug', {
   solutionLink: { type: DataTypes.STRING }
 });
 
-// RELAȚII (Configurare strictă)
+// DEFINIRE RELATII
 Project.hasMany(Bug, { foreignKey: 'ProjectId', onDelete: 'CASCADE' });
 Bug.belongsTo(Project, { foreignKey: 'ProjectId' });
 
+// Legătura Bug -> User (Reporter și Assigned)
 Bug.belongsTo(User, { as: 'reporter', foreignKey: 'reporterId' });
 Bug.belongsTo(User, { as: 'assignedTo', foreignKey: 'assignedToId' });
 

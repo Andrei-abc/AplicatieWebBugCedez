@@ -6,25 +6,26 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-// Logare cereri
+// Logger pentru terminal
 app.use((req, res, next) => {
   console.log(`[${new Date().toLocaleTimeString()}] ${req.method} ${req.url}`);
   next();
 });
 
-// --- RUTE AUTH ---
+// --- RUTE AUTENTIFICARE ---
 app.post('/api/auth/signup', async (req, res) => {
   try {
-    const newUser = await User.create(req.body);
-    res.status(201).json(newUser);
+    const user = await User.create(req.body);
+    res.status(201).json(user);
   } catch (err) {
-    res.status(400).json({ error: "Email-ul există deja sau date invalide." });
+    res.status(400).json({ error: "Eroare la creare utilizator (posibil email duplicat)." });
   }
 });
 
 app.post('/api/auth/login', async (req, res) => {
   const user = await User.findOne({ where: { email: req.body.email, password: req.body.password } });
-  user ? res.json(user) : res.status(401).json({ error: "Credentiale gresite" });
+  if (user) res.json(user);
+  else res.status(401).json({ error: "Email sau parolă incorectă" });
 });
 
 app.get('/api/auth/users', async (req, res) => {
@@ -34,7 +35,8 @@ app.get('/api/auth/users', async (req, res) => {
 
 // --- RUTE PROIECTE ---
 app.get('/api/projects', async (req, res) => {
-  res.json(await Project.findAll());
+  const projects = await Project.findAll();
+  res.json(projects);
 });
 
 app.post('/api/projects', async (req, res) => {
@@ -46,48 +48,69 @@ app.post('/api/projects', async (req, res) => {
   }
 });
 
-// --- RUTE BUG-URI (CORECȚIE AICI) ---
+// --- RUTE BUG-URI (VERSIUNEA REPARATĂ) ---
 app.get('/api/bugs/project/:projectId', async (req, res) => {
-  const bugs = await Bug.findAll({ 
-    where: { ProjectId: req.params.projectId },
-    include: [
-      { model: User, as: 'assignedTo', attributes: ['email'] },
-      { model: User, as: 'reporter', attributes: ['email'] }
-    ]
-  });
-  res.json(bugs);
+  try {
+    const bugs = await Bug.findAll({ 
+      where: { ProjectId: req.params.projectId },
+      include: [
+        { model: User, as: 'assignedTo', attributes: ['email'], required: false },
+        { model: User, as: 'reporter', attributes: ['email'], required: false }
+      ]
+    });
+    console.log(`[DEBUG] Trimit ${bugs.length} bug-uri către frontend pentru proiectul ${req.params.projectId}`);
+    res.json(bugs);
+  } catch (err) {
+    console.error("Eroare la preluare bug-uri:", err);
+    res.status(500).json({ error: err.message });
+  }
 });
 
 app.post('/api/bugs', async (req, res) => {
   try {
-    console.log("Date primite pentru BUG:", req.body);
-    // Sequelize are nevoie de ProjectId exact cu literele astea
-    const bug = await Bug.create(req.body); 
+    // Ne asigurăm că ProjectId și reporterId ajung corect
+    const bug = await Bug.create(req.body);
+    console.log("✅ Bug salvat în DB:", bug.title);
     res.status(201).json(bug);
   } catch (err) {
-    console.error("Eroare la salvare bug:", err.message);
+    console.error("❌ Eroare salvare bug:", err.message);
     res.status(400).json({ error: err.message });
   }
 });
 
 app.put('/api/bugs/:id/assign', async (req, res) => {
-  const bug = await Bug.findByPk(req.params.id);
-  if (bug) {
+  try {
+    const bug = await Bug.findByPk(req.params.id);
+    if (!bug) return res.status(404).json({ error: "Bug negăsit" });
+    
     await bug.update({ assignedToId: req.body.userId, status: 'In Progress' });
-    res.json(bug);
-  } else res.status(404).send();
+    
+    // Returnăm bug-ul actualizat cu tot cu noul email alocat
+    const updatedBug = await Bug.findByPk(req.params.id, {
+        include: [{ model: User, as: 'assignedTo', attributes: ['email'] }]
+    });
+    res.json(updatedBug);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
 app.put('/api/bugs/:id/resolve', async (req, res) => {
-  const bug = await Bug.findByPk(req.params.id);
-  if (bug) {
+  try {
+    const bug = await Bug.findByPk(req.params.id);
     await bug.update({ solutionLink: req.body.solutionLink, status: 'Resolved' });
     res.json(bug);
-  } else res.status(404).send();
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 });
 
+// --- START ---
 const PORT = 3001;
-// Folosim alter: true pentru a adăuga coloanele noi fără a șterge datele existente
+// Folosim alter: true pentru a repara coloanele lipsă (cum a fost ownerId)
 sequelize.sync({ alter: true }).then(() => {
-  app.listen(PORT, () => console.log(`🚀 Server pe port ${PORT} cu baza de date actualizată.`));
+  app.listen(PORT, () => {
+    console.log(`\n🚀 SERVER ONLINE: http://localhost:${PORT}`);
+    console.log(`💡 Sfat: Dacă bug-urile nu apar, verifică ProjectId în baza de date.\n`);
+  });
 });

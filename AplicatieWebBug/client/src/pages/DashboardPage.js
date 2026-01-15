@@ -13,8 +13,8 @@ const DashboardPage = () => {
     try {
       const response = await fetch('http://localhost:3001/api/projects');
       if (!response.ok) throw new Error('Nu s-au putut încărca proiectele');
-      const data = await response.json();
-      setProjects(data);
+      const result = await response.json();
+      setProjects(result.data || result || []);
     } catch (error) {
       console.error('Eroare:', error);
     } finally {

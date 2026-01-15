@@ -2,11 +2,11 @@ const API_URL = 'http://localhost:3001/api/bugs';
 
 export const fetchBugsByProject = async (id) => {
   const r = await fetch(`${API_URL}/project/${id}`);
-  return r.json();
+  const result = await r.json();
+  return result.data || result || [];
 };
 
 export const addBug = async (data) => {
-  // Ne asigurăm că trimitem ProjectId (cu P mare) așa cum așteaptă Sequelize
   const payload = {
     ...data,
     ProjectId: data.projectId 
@@ -17,7 +17,8 @@ export const addBug = async (data) => {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify(payload)
   });
-  return r.json();
+  const result = await r.json();
+  return result.data || result;
 };
 
 export const assignBug = async (id, userId) => {
@@ -26,21 +27,22 @@ export const assignBug = async (id, userId) => {
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ userId })
   });
-  return r.json();
+  const result = await r.json();
+  return result.data || result;
 };
 
 export const updateBugStatus = async (id, solutionLink) => {
-  // Am corectat ruta la /resolve și ne asigurăm că trimitem solutionLink
   const r = await fetch(`${API_URL}/${id}/resolve`, {
     method: 'PUT',
     headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ solutionLink })
   });
-  return r.json();
+  const result = await r.json();
+  return result.data || result;
 };
 
 export const fetchTeamMembers = async () => {
-  // Această rută returnează toți utilizatorii pentru a putea alege un MP căruia să-i aloci bug-ul
   const r = await fetch('http://localhost:3001/api/auth/users');
-  return r.json();
+  const result = await r.json();
+  return result.data || result || [];
 };

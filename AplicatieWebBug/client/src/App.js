@@ -7,10 +7,11 @@ import DashboardPage from './pages/DashboardPage';
 import ProjectPage from './pages/ProjectPage';
 import './App.css';
 
-// Contextul pentru autentificare
+// Context pentru autentificare si helper pentru componente
 const AuthContext = React.createContext();
 export const useAuth = () => React.useContext(AuthContext);
 
+// Starea initiala a autentificarii
 const initialAuthState = {
   isAuthenticated: false,
   user: null, 

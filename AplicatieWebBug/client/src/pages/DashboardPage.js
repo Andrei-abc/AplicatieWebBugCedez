@@ -9,6 +9,7 @@ const DashboardPage = () => {
   const [showAddForm, setShowAddForm] = useState(false);
   const [newProject, setNewProject] = useState({ name: '', repository: '' });
 
+  // Preia proiectele de pe server
   const fetchProjects = async () => {
     try {
       const response = await fetch('http://localhost:3001/api/projects');

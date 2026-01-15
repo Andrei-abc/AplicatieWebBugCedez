@@ -1,5 +1,6 @@
 const { Bug, User } = require('../models');
 
+// Returneaza toate bug-urile cu informatii despre reporter si persoana alocata
 exports.getAllBugs = async (req, res) => {
   try {
     const bugs = await Bug.findAll({
@@ -14,6 +15,7 @@ exports.getAllBugs = async (req, res) => {
   }
 };
 
+// Returneaza bug-urile pentru un anumit proiect (param: projectId)
 exports.getBugsByProject = async (req, res) => {
   try {
     const { projectId } = req.params;
@@ -30,6 +32,7 @@ exports.getBugsByProject = async (req, res) => {
   }
 };
 
+// Returneaza detaliile unui bug dupa id
 exports.getBugById = async (req, res) => {
   try {
     const bug = await Bug.findByPk(req.params.id, {
@@ -39,7 +42,7 @@ exports.getBugById = async (req, res) => {
       ]
     });
     if (!bug) {
-      return res.status(404).json({ error: "Bug negăsit" });
+      return res.status(404).json({ error: "Bug negasit" });
     }
     res.json({ data: bug });
   } catch (err) {
@@ -47,11 +50,12 @@ exports.getBugById = async (req, res) => {
   }
 };
 
+// Creeaza un bug nou (body trebuie sa contina cel putin title si ProjectId)
 exports.createBug = async (req, res) => {
   try {
     const { title, description, severity, priority, commitLink, ProjectId, reporterId } = req.body;
     if (!title || !ProjectId) {
-      return res.status(400).json({ error: "Titlu și ProjectId sunt obligatorii" });
+      return res.status(400).json({ error: "Titlu si ProjectId sunt obligatorii" });
     }
     const bug = await Bug.create({
       title, description, severity, priority, commitLink, ProjectId, reporterId, status: 'Open'
@@ -62,11 +66,12 @@ exports.createBug = async (req, res) => {
   }
 };
 
+// Actualizeaza un bug existent (campurile vin in body)
 exports.updateBug = async (req, res) => {
   try {
     const bug = await Bug.findByPk(req.params.id);
     if (!bug) {
-      return res.status(404).json({ error: "Bug negăsit" });
+      return res.status(404).json({ error: "Bug negasit" });
     }
     await bug.update(req.body);
     const updatedBug = await Bug.findByPk(req.params.id, {
@@ -81,6 +86,7 @@ exports.updateBug = async (req, res) => {
   }
 };
 
+// Aloca un bug catre un utilizator si seteaza statusul In Progress
 exports.assignBug = async (req, res) => {
   try {
     const { id } = req.params;
@@ -90,7 +96,7 @@ exports.assignBug = async (req, res) => {
     }
     const bug = await Bug.findByPk(id);
     if (!bug) {
-      return res.status(404).json({ error: "Bug negăsit" });
+      return res.status(404).json({ error: "Bug negasit" });
     }
     await bug.update({ assignedToId: userId, status: 'In Progress' });
     const updatedBug = await Bug.findByPk(id, {
@@ -102,13 +108,14 @@ exports.assignBug = async (req, res) => {
   }
 };
 
+// Marcheaza bug-ul ca rezolvat si salveaza link-ul solutiei
 exports.resolveBug = async (req, res) => {
   try {
     const { id } = req.params;
     const { solutionLink } = req.body;
     const bug = await Bug.findByPk(id);
     if (!bug) {
-      return res.status(404).json({ error: "Bug negăsit" });
+      return res.status(404).json({ error: "Bug negasit" });
     }
     await bug.update({ solutionLink, status: 'Resolved' });
     const updatedBug = await Bug.findByPk(id, {
@@ -123,14 +130,15 @@ exports.resolveBug = async (req, res) => {
   }
 };
 
+// Sterge un bug dupa id
 exports.deleteBug = async (req, res) => {
   try {
     const bug = await Bug.findByPk(req.params.id);
     if (!bug) {
-      return res.status(404).json({ error: "Bug negăsit" });
+      return res.status(404).json({ error: "Bug negasit" });
     }
     await bug.destroy();
-    res.json({ message: 'Bug șters cu succes' });
+    res.json({ message: 'Bug sters cu succes' });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

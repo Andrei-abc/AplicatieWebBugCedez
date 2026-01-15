@@ -3,12 +3,12 @@
 import React from 'react';
 import BugItem from './BugItem'; 
 
-// ATENȚIE: Am adăugat onUpdate ca prop primit și trimis mai departe
+// Lista de bug-uri. Primeste onUpdate pentru a propaga modificarile din copii
 const BugList = ({ bugs, projectId, userRole, onUpdate }) => { 
 
   if (bugs.length === 0) {
     return <p style={{ textAlign: 'center', marginTop: '30px', color: '#6c757d' }}>
-        Nu există bug-uri înregistrate pentru acest proiect.
+        Nu exista bug-uri inregistrate pentru acest proiect.
     </p>;
   }
 
@@ -20,7 +20,7 @@ const BugList = ({ bugs, projectId, userRole, onUpdate }) => {
           bug={bug} 
           projectId={projectId} 
           userRole={userRole}
-          onUpdate={onUpdate} // <-- TRIMITE CĂTRE BugItem
+          onUpdate={onUpdate} // transmite schimbarea catre parinte
         />
       ))}
     </div>

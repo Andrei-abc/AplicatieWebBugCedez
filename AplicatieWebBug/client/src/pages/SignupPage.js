@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { signup } from '../api/authApi';
 
+// Pagina de inregistrare utilizator
 function SignupPage() {
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
@@ -14,7 +15,7 @@ function SignupPage() {
         setLoading(true);
 
         try {
-            // IMPORTANT: Folosim 'await' pentru a ne asigura că serverul primește datele
+            // Folosim 'await' pentru a astepta raspunsul serverului
             const response = await signup(email, password, role);
             
             console.log("Răspuns server la signup:", response);

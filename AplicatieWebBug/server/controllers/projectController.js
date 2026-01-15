@@ -1,5 +1,6 @@
 const { Project, Bug } = require('../models');
 
+// Returneaza toate proiectele, cu numarul de bug-uri legate
 exports.getAllProjects = async (req, res) => {
   try {
     const projects = await Project.findAll({
@@ -11,6 +12,7 @@ exports.getAllProjects = async (req, res) => {
   }
 };
 
+// Creeaza un proiect nou (body: name, repository, ownerId)
 exports.createProject = async (req, res) => {
   try {
     const { name, repository, ownerId } = req.body;
@@ -24,13 +26,14 @@ exports.createProject = async (req, res) => {
   }
 };
 
+// Returneaza detalii despre un proiect si bug-urile sale
 exports.getProjectById = async (req, res) => {
   try {
     const project = await Project.findByPk(req.params.id, {
       include: [{ model: Bug, required: false }]
     });
     if (!project) {
-      return res.status(404).json({ error: "Proiect negăsit" });
+      return res.status(404).json({ error: "Proiect negasit" });
     }
     res.json({ data: project });
   } catch (err) {
@@ -38,11 +41,12 @@ exports.getProjectById = async (req, res) => {
   }
 };
 
+// Actualizeaza un proiect existent cu campurile din body
 exports.updateProject = async (req, res) => {
   try {
     const project = await Project.findByPk(req.params.id);
     if (!project) {
-      return res.status(404).json({ error: "Proiect negăsit" });
+      return res.status(404).json({ error: "Proiect negasit" });
     }
     await project.update(req.body);
     res.json({ message: 'Proiect actualizat cu succes', data: project });
@@ -51,14 +55,15 @@ exports.updateProject = async (req, res) => {
   }
 };
 
+// Sterge un proiect dupa id
 exports.deleteProject = async (req, res) => {
   try {
     const project = await Project.findByPk(req.params.id);
     if (!project) {
-      return res.status(404).json({ error: "Proiect negăsit" });
+      return res.status(404).json({ error: "Proiect negasit" });
     }
     await project.destroy();
-    res.json({ message: 'Proiect șters cu succes' });
+    res.json({ message: 'Proiect sters cu succes' });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }

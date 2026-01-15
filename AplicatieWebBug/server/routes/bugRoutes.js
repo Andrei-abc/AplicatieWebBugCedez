@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const bugController = require('../controllers/bugController');
 
+// Rute pentru operatii CRUD pe bug-uri
 router.get('/', bugController.getAllBugs);
 router.post('/', bugController.createBug);
 router.get('/project/:projectId', bugController.getBugsByProject);

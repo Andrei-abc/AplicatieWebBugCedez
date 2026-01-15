@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import * as bugApi from '../api/bugApi';
 
+// Formular pentru adaugare bug (folosit de pagina proiect)
 const BugForm = ({ projectId, reporterId, onBugAdded }) => {
   const [bug, setBug] = useState({
     title: '',
@@ -26,6 +27,7 @@ const BugForm = ({ projectId, reporterId, onBugAdded }) => {
       return;
     }
 
+    // Trimitem datele catre API
     setIsSubmitting(true);
     try {
       const newBug = await bugApi.addBug({ ...bug, projectId: parseInt(projectId), reporterId });

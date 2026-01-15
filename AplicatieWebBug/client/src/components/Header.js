@@ -2,6 +2,7 @@ import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useAuth } from '../App';
 
+// Header cu linkuri si buton de logout; afiseaza info utilizator
 const Header = () => {
   const { authState, logout } = useAuth();
   const navigate = useNavigate();
@@ -26,7 +27,6 @@ const Header = () => {
             </>
           ) : (
             <>
-              {/* Ambele butoane sunt acum vizibile în Header */}
               <Link to="/login" className="nav-link">Login</Link>
               <Link to="/signup" className="nav-link" style={{ 
                 backgroundColor: '#007bff', 

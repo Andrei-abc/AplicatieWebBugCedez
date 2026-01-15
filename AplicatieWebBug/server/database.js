@@ -1,9 +1,11 @@
 const { Sequelize } = require('sequelize');
 
-// Configurarea Sequelize pentru SQLite (Bază de date relațională conform cerinței)
+// Configure Sequelize pentru SQLite
+// Folosim fisier local pentru stocare a datelor (database.sqlite)
 const sequelize = new Sequelize({
   dialect: 'sqlite',
-  storage: './database.sqlite' // Fișierul unde se salvează datele
+  storage: './database.sqlite'
 });
 
+// Exportam instanta Sequelize pentru a fi folosita in modele si server
 module.exports = sequelize;

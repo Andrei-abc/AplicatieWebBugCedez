@@ -1,5 +1,6 @@
 const { User } = require('../models');
 
+// Creaza un utilizator nou in baza de date
 exports.signup = async (req, res) => {
   try {
     const user = await User.create(req.body);
@@ -9,22 +10,24 @@ exports.signup = async (req, res) => {
   }
 };
 
+// Verifica email si parola si returneaza datele utilizatorului
 exports.login = async (req, res) => {
   try {
     const { email, password } = req.body;
     if (!email || !password) {
-      return res.status(400).json({ error: "Email și parolă sunt obligatorii" });
+      return res.status(400).json({ error: "Email si parola sunt obligatorii" });
     }
     const user = await User.findOne({ where: { email, password } });
     if (!user) {
-      return res.status(401).json({ error: "Email sau parolă incorectă" });
+      return res.status(401).json({ error: "Email sau parola incorecta" });
     }
-    res.json({ id: user.id, email: user.email, role: user.role, message: 'Autentificare reușită' });
+    res.json({ id: user.id, email: user.email, role: user.role, message: 'Autentificare reusita' });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 };
 
+// Returneaza toti utilizatorii (id, email, role)
 exports.getAllUsers = async (req, res) => {
   try {
     const users = await User.findAll({ attributes: ['id', 'email', 'role'] });

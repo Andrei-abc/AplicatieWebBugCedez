@@ -5,6 +5,7 @@ import * as bugApi from '../api/bugApi';
 import BugForm from '../components/BugForm';
 import BugList from '../components/BugList';
 
+// Pagina proiect - incarca bug-urile si gestioneaza filtre si actiuni
 const ProjectPage = () => {
   const { projectId } = useParams();
   const { authState } = useAuth();

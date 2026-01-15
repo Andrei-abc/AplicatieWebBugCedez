@@ -2,43 +2,44 @@ import React, { useState, useEffect } from 'react';
 import * as bugApi from '../api/bugApi';
 import { useAuth } from '../App'; 
 
+// Componenta pentru afisarea unui bug si actiuni posibile
 const BugItem = ({ bug: initialBug, userRole, onUpdate }) => { 
   const { authState } = useAuth(); 
   const currentUserId = authState.user ? authState.user.id : null;
 
-  // State-uri pentru gestionarea locală a datelor
+  // State local pentru bug, membri echipa si campuri de formular
   const [bug, setBug] = useState(initialBug);
   const [teamMembers, setTeamMembers] = useState([]);
   const [selectedAssignee, setSelectedAssignee] = useState('');
   const [resolutionCommit, setResolutionCommit] = useState('');
 
-  // Preluăm membrii echipei doar dacă utilizatorul este MP și bug-ul poate fi alocat
+  // Daca userul are rol MP si bug-ul e Open, preluam membrii echipei
   useEffect(() => {
     if (userRole === 'MP' && bug.status === 'Open') {
       bugApi.fetchTeamMembers()
         .then(members => {
-          // Filtrăm pentru a vedea doar colegii cu rol de MP (Membru Proiect)
+          // Pastram doar MP pentru lista de alocari
           setTeamMembers(members.filter(m => m.role === 'MP')); 
         })
         .catch(err => console.error("Eroare la incarcarea membrilor:", err));
     }
   }, [userRole, bug.status]);
 
-  // Funcție pentru afișarea email-ului celui alocat (folosește datele din Join-ul de pe server)
+  // Afiseaza email-ul persoanei alocate sau mesaj default
   const getAssigneeDisplay = () => {
     if (bug.assignedTo && bug.assignedTo.email) return bug.assignedTo.email;
     return "Neatribuit";
   };
 
-  // Logica de alocare a bug-ului
+  // Aloca bug-ul catre un utilizator (sau catre sine)
   const handleAssign = async (selfAssignId = null) => {
     const assigneeId = selfAssignId || selectedAssignee;
-    if (!assigneeId) return alert("Selectează un membru al echipei.");
+    if (!assigneeId) return alert("Selecteaza un membru al echipei.");
 
     try {
       const updatedBug = await bugApi.assignBug(bug.id, assigneeId);
       setBug(updatedBug);
-      onUpdate(updatedBug); // Notificăm pagina părinte pentru refresh listă
+      onUpdate(updatedBug); // Notificam parintele pentru actualizare lista
       alert(`Bug-ul a fost alocat cu succes.`);
       setSelectedAssignee('');
     } catch (error) {
@@ -46,7 +47,7 @@ const BugItem = ({ bug: initialBug, userRole, onUpdate }) => {
     }
   };
   
-  // Logica de rezolvare a bug-ului (Sarcina Ta - P3)
+  // Marcheaza bug-ul ca rezolvat trimitand link-ul commit-ului
   const handleResolve = async () => {
     if (!resolutionCommit || resolutionCommit.length < 5) {
       return alert("Introdu un link valid de commit pentru rezolvare.");
@@ -62,7 +63,7 @@ const BugItem = ({ bug: initialBug, userRole, onUpdate }) => {
     }
   };
   
-  // Culori pentru statusuri (UX obligatoriu)
+  // Stiluri simple pentru statusuri
   const statusColors = { 
     'Open': '#dc3545', 
     'In Progress': '#ffc107', 

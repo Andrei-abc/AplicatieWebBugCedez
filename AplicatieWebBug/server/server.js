@@ -51,6 +51,12 @@ app.post('/api/projects', async (req, res) => {
 // --- RUTE BUG-URI (VERSIUNEA REPARATĂ) ---
 app.get('/api/bugs/project/:projectId', async (req, res) => {
   try {
+    console.log(`🔍 Caut bug-uri cu ProjectId = ${req.params.projectId}`);
+    
+    // Verific toate bug-urile din baza de date
+    const allBugs = await Bug.findAll();
+    console.log(`📊 Total bug-uri în DB: ${allBugs.length}`, allBugs.map(b => ({ id: b.id, title: b.title, ProjectId: b.ProjectId })));
+    
     const bugs = await Bug.findAll({ 
       where: { ProjectId: req.params.projectId },
       include: [
@@ -69,11 +75,13 @@ app.get('/api/bugs/project/:projectId', async (req, res) => {
 app.post('/api/bugs', async (req, res) => {
   try {
     // Ne asigurăm că ProjectId și reporterId ajung corect
+    console.log("📥 Primesc bug cu date:", req.body);
     const bug = await Bug.create(req.body);
-    console.log("✅ Bug salvat în DB:", bug.title);
+    console.log("✅ Bug salvat în DB:", bug.title, "cu ProjectId:", bug.ProjectId);
     res.status(201).json(bug);
   } catch (err) {
     console.error("❌ Eroare salvare bug:", err.message);
+    console.error("Stack:", err);
     res.status(400).json({ error: err.message });
   }
 });
@@ -107,10 +115,12 @@ app.put('/api/bugs/:id/resolve', async (req, res) => {
 
 // --- START ---
 const PORT = 3001;
-// Folosim alter: true pentru a repara coloanele lipsă (cum a fost ownerId)
-sequelize.sync({ alter: true }).then(() => {
+// Sincronizare bază de date - force: false = nu șterge datele existente
+sequelize.sync({ force: false, alter: false }).then(() => {
   app.listen(PORT, () => {
     console.log(`\n🚀 SERVER ONLINE: http://localhost:${PORT}`);
     console.log(`💡 Sfat: Dacă bug-urile nu apar, verifică ProjectId în baza de date.\n`);
   });
+}).catch(err => {
+  console.error("❌ Eroare la sync:", err);
 });

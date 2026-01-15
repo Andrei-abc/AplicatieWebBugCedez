@@ -20,7 +20,9 @@ const ProjectPage = () => {
     const loadBugs = async () => {
       setLoading(true);
       try {
+        console.log(`📥 Caut bug-uri pentru proiectul ${projectId}`);
         const data = await bugApi.fetchBugsByProject(projectId);
+        console.log(`✅ Am primit ${data.length} bug-uri:`, data);
         setBugs(data);
       } catch (error) {
         console.error('Eroare la preluarea bug-urilor:', error);

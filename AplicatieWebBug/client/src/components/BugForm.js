@@ -28,7 +28,7 @@ const BugForm = ({ projectId, reporterId, onBugAdded }) => {
 
     setIsSubmitting(true);
     try {
-      const newBug = await bugApi.addBug({ ...bug, projectId: parseInt(projectId) }, reporterId);
+      const newBug = await bugApi.addBug({ ...bug, projectId: parseInt(projectId), reporterId });
       onBugAdded(newBug);
       
       setBug({ title: '', description: '', severity: 'Medium', priority: 'Medium', commitLink: '' });

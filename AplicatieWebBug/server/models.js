@@ -24,7 +24,8 @@ const Bug = sequelize.define('Bug', {
   severity: { type: DataTypes.STRING },
   priority: { type: DataTypes.STRING },
   status: { type: DataTypes.STRING, defaultValue: 'Open' },
-  solutionLink: { type: DataTypes.STRING }
+  solutionLink: { type: DataTypes.STRING },
+  commitLink: { type: DataTypes.STRING }
 });
 
 // DEFINIRE RELATII
